@@ -25,7 +25,7 @@ proc createRecFrame { parent } {
     frame $frameName -padx 10 -pady 10 -background RoyalBlue2
 
     frame $frameName.topFrame -borderwidth 10 -relief ridge -background blue
-    entry $frameName.topFrame.recName -background red -foreground white -width 20 -justify left -textvariable $frameName_recipeName
+    entry $frameName.topFrame.recName -background red -foreground white -width 20 -justify left -textvariable "$frameName-recipeName"
     button $frameName.topFrame.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bottomFrame $frameName"
 
     ttk::separator $frameName.sep
@@ -52,6 +52,7 @@ proc createIngFrame { parent varName} {
     variable recData
     dict set recData $varName num_ings [expr [dict get $recData $varName num_ings] + 1]
     puts [dict get $recData $varName num_ings]
+    puts "Name is: $varName-recipeName"
 
 }
 
