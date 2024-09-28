@@ -9,6 +9,8 @@ set num_reps 0
 # dictionary of arrays
 # Name of initial key is the frame name then the array key is the name of the variable type
 set recData [dict create]; # This line creates an empty dictionary
+set recNameArr(-1) Debug
+
 
 #### Frames
 
@@ -17,6 +19,7 @@ set recData [dict create]; # This line creates an empty dictionary
 proc createRecFrame { parent } {
     variable num_reps
     variable recData
+    variable recNameArr
     # Initial setup for a recipe frame
     set num_reps [expr $num_reps + 1]
     set frameName $parent.recFrame$num_reps
@@ -25,7 +28,7 @@ proc createRecFrame { parent } {
     frame $frameName -padx 10 -pady 10 -background RoyalBlue2
 
     frame $frameName.topFrame -borderwidth 10 -relief ridge -background blue
-    entry $frameName.topFrame.recName -background red -foreground white -width 20 -justify left -textvariable "$frameName-recipeName"
+    entry $frameName.topFrame.recName -background red -foreground white -width 20 -justify left -textvariable recNameArr($frameName)
     button $frameName.topFrame.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bottomFrame $frameName"
 
     ttk::separator $frameName.sep
@@ -50,10 +53,10 @@ proc createRecFrame { parent } {
 ## Create Ing Frame
 proc createIngFrame { parent varName} {
     variable recData
+    variable recNameArr
     dict set recData $varName num_ings [expr [dict get $recData $varName num_ings] + 1]
     puts [dict get $recData $varName num_ings]
-    puts "Name is: $varName-recipeName"
-
+    puts $recNameArr($varName)
 }
 
 #### File Handling (import and export)
