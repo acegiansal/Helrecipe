@@ -11,6 +11,8 @@ set num_reps 0
 set recData [dict create]; # This line creates an empty dictionary
 set recNameArr(-1) Debug
 
+set UNIT_LIST [list Kilograms grams ounces units]
+
 
 #### Frames
 
@@ -52,11 +54,39 @@ proc createRecFrame { parent } {
 
 ## Create Ing Frame
 proc createIngFrame { parent varName} {
+    # Variables declared globally (because TCL sucks)
     variable recData
     variable recNameArr
+    variable UNIT_LIST
+
+    # Increment ing frame counter to the dictionary
     dict set recData $varName num_ings [expr [dict get $recData $varName num_ings] + 1]
-    puts [dict get $recData $varName num_ings]
-    puts $recNameArr($varName)
+    set curNumIngs [dict get $recData $varName num_ings]
+    puts [format "Creating ing frame --%d-- for %s" [dict get $recData $varName num_ings] $varName]
+
+    # Set frame name
+    set ingFrName $parent.ingFr$curNumIngs
+
+    frame $ingFrName -padx 5 -pady 5 -background burlywood2
+    spinbox $ingFrName.amount -from 0 -to 10000 -increment 1
+
+    # Create the menu
+    tk_optionMenu $ingFrName.units testVar {*}$UNIT_LIST
+
+    # Test button
+    button $ingFrName.test -text "TEST" -textvariable testVar
+
+    grid $ingFrName.amount
+    grid $ingFrName.units
+    grid $ingFrName.test
+    grid $ingFrName
+}
+
+proc testProc { varName } {
+    variable UNIT_LIST
+    set value [$varName.units curselection]
+    puts [format "index %s has been selected with value: %s" $value [lindex $UNIT_LIST $value]]
+
 }
 
 #### File Handling (import and export)
