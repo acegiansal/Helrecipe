@@ -11,7 +11,11 @@ set num_reps 0
 set recData [dict create]; # This line creates an empty dictionary
 set recNameArr(-1) Debug
 
-set UNIT_LIST [list Kilograms grams ounces units]
+
+set METRIC_UNITS [list kg g mg L ml]
+set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
+
+set UNIT_LIST [list {*}$METRIC_UNITS {*}$IMPERIAL_UNITS units]
 
 
 #### Frames
@@ -29,23 +33,23 @@ proc createRecFrame { parent } {
 
     frame $frameName -padx 10 -pady 10 -background RoyalBlue2
 
-    frame $frameName.topFrame -borderwidth 10 -relief ridge -background blue
-    entry $frameName.topFrame.recName -background red -foreground white -width 20 -justify left -textvariable recNameArr($frameName)
-    button $frameName.topFrame.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bottomFrame $frameName"
+    frame $frameName.tf -borderwidth 10 -relief ridge -background blue
+    entry $frameName.tf.recName -background red -foreground white -width 20 -justify left -textvariable recNameArr($frameName)
+    button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName"
 
     ttk::separator $frameName.sep
-    frame $frameName.bottomFrame -borderwidth 10 -relief ridge
+    frame $frameName.bf
 
     # Add all components to actual recipe frame
-    grid $frameName.topFrame
-    grid $frameName.topFrame.recName -sticky w
-    grid $frameName.topFrame.addIngButton -column 1 -row 0 -sticky e -padx 5
+    grid $frameName.tf -sticky n
+    grid $frameName.tf.recName -sticky w
+    grid $frameName.tf.addIngButton -column 1 -row 0 -sticky e -padx 5
 
-    # grid propagate $frameName.topFrame 0 ;# Prevent the grid from resizing the frame from set size
+    # grid propagate $frameName.tf 0 ;# Prevent the grid from resizing the frame from set size
     # NOTE: The above code will only work if the grids are given a sizes
 
     grid $frameName.sep -sticky ew -pady 20
-    grid $frameName.bottomFrame
+    grid $frameName.bf -sticky s
 
     # Add the actual recipe frame
     grid $frameName
@@ -62,24 +66,31 @@ proc createIngFrame { parent varName} {
     # Increment ing frame counter to the dictionary
     dict set recData $varName num_ings [expr [dict get $recData $varName num_ings] + 1]
     set curNumIngs [dict get $recData $varName num_ings]
-    puts [format "Creating ing frame --%d-- for %s" [dict get $recData $varName num_ings] $varName]
 
     # Set frame name
     set ingFrName $parent.ingFr$curNumIngs
+    puts [format "Creating ing frame --%d-- for %s with name %s" [dict get $recData $varName num_ings] $varName $ingFrName]
 
-    frame $ingFrName -padx 5 -pady 5 -background burlywood2
-    spinbox $ingFrName.amount -from 0 -to 10000 -increment 1
+    frame $ingFrName -padx 1 -pady 1 -background burlywood2 -borderwidth 2 -relief ridge
+    spinbox $ingFrName.amount -from 0 -to 10000 -increment 1 -width 5
 
     # Create the menu
     tk_optionMenu $ingFrName.units testVar {*}$UNIT_LIST
+    # tk_optionMenu $ingFrName.units [dict get $recData $varName] {*}$UNIT_LIST
 
     # Test button
-    button $ingFrName.test -text "TEST" -textvariable testVar
+    button $ingFrName.test -text "" -textvariable testVar
+    # button $ingFrName.test -text "" -textvariable [dict get $recData $varName]
 
-    grid $ingFrName.amount
-    grid $ingFrName.units
-    grid $ingFrName.test
+    # puts [format "Varname: %s" [dict get $recData $varName]]
+
+    grid $ingFrName.amount -sticky w
+    grid $ingFrName.units -column 1 -row 0 -padx 5
+    grid $ingFrName.test -column 2 -row 0 -padx 5
     grid $ingFrName
+
+    puts RecData:
+    puts $recData
 }
 
 proc testProc { varName } {
