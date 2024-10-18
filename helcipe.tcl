@@ -135,17 +135,17 @@ proc deleteIng { ingFrName } {
     unset unitsArr($ingFrName)
 }
 
-proc testProc { varName } {
-    variable UNIT_LIST
-    set value [$varName.units curselection]
-    puts [format "index %s has been selected with value: %s" $value [lindex $UNIT_LIST $value]]
-
+deleteRec { recFrName } {
+    
 }
+
 
 #### File Handling (import and export)
 proc sendToList {} {
 }
 
+
+#### Debug methods
 proc _printAllInfo {} {
     variable recData
     variable recNameArr
@@ -175,6 +175,13 @@ proc _printAllInfo {} {
     foreach  {key val} [array get unitsArr] {
         puts [format "%s: %s" $key $val]
     }
+
+}
+
+proc _testProc { varName } {
+    variable UNIT_LIST
+    set value [$varName.units curselection]
+    puts [format "index %s has been selected with value: %s" $value [lindex $UNIT_LIST $value]]
 
 }
 
