@@ -17,6 +17,8 @@ set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
 
 set UNIT_LIST [list {*}$METRIC_UNITS {*}$IMPERIAL_UNITS units]
 
+set path_to_recs ""
+set path_to_ings ""
 
 #### Frames
 
@@ -26,9 +28,15 @@ proc createRecFrame { parent } {
     variable num_reps
     variable recData
     variable recNameArr
+    variable path_to_recs
     # Initial setup for a recipe frame
     set num_reps [expr $num_reps + 1]
-    set frameName $parent.recFrame$num_reps
+
+    if { $path_to_recs == "" } {
+        set path_to_recs $parent.recFrame
+    }
+
+    set frameName $path_to_recs$num_reps
     dict set recData "$frameName" num_ings 0
 
     frame $frameName -padx 10 -pady 10 -background RoyalBlue2
@@ -62,13 +70,18 @@ proc createIngFrame { parent varName} {
     variable recData
     variable recNameArr
     variable UNIT_LIST
+    variable path_to_ings
+    set ING_FR_NM ingFr
 
     # Increment ing frame counter to the dictionary
     dict set recData $varName num_ings [expr [dict get $recData $varName num_ings] + 1]
     set curNumIngs [dict get $recData $varName num_ings]
 
-    # Set frame name
-    set ingFrName $parent.ingFr$curNumIngs
+    # Set ing frame name
+    if { $path_to_ings == ""} {
+        set path_to_ings [lindex [split $parent .] end].$ING_FR_NM
+    }
+    set ingFrName $parent.$ING_FR_NM$curNumIngs
     puts [format "Creating ing frame --%d-- for %s with name %s" [dict get $recData $varName num_ings] $varName $ingFrName]
 
     frame $ingFrName -padx 1 -pady 1 -background burlywood2 -borderwidth 2 -relief ridge
