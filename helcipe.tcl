@@ -102,13 +102,21 @@ proc createIngFrame { parent varName} {
 
     entry $ingFrName.ingName -background azure -width 15 -justify left -textvariable ingNameArr($ingFrName)
 
+    button $ingFrName.delIng -width 5 -text Delete -command "deleteIng $ingFrName"
+
     # puts [format "Varname: %s" [dict get $recData $varName]]
 
     grid $ingFrName.amount -sticky w
     grid $ingFrName.units -column 1 -row 0 -padx 5
     grid $ingFrName.ingName -column 2 -row 0
+    grid $ingFrName.delIng -column 3 -row 0 -padx 3
     grid $ingFrName
 
+}
+
+proc deleteIng { parent } {
+    puts [format "Deleting ing Frame: %s" $parent]
+    # Remeber to delete all information from the array!!
 }
 
 proc testProc { varName } {
