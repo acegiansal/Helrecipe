@@ -53,6 +53,7 @@ proc createRecFrame { parent } {
     frame $frameName.tf -borderwidth 10 -relief ridge -background blue
     entry $frameName.tf.recName -background NavajoWhite2 -width 20 -justify left -textvariable recNameArr($frameName)
     button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName"
+    button $frameName.tf.deleteRecButton -text "Delete" -background red2 -command "deleteRec $frameName" -padx 10
 
     ttk::separator $frameName.sep
     frame $frameName.bf -pady 3 -padx 3 -background PaleGreen4 -width $SIZE_5 -height 30
@@ -61,6 +62,7 @@ proc createRecFrame { parent } {
     grid $frameName.tf -sticky n
     grid $frameName.tf.recName -sticky w
     grid $frameName.tf.addIngButton -column 1 -row 0 -sticky e -padx 5
+    grid $frameName.tf.deleteRecButton -column 2 -row 0 -padx 2
 
     # grid propagate $frameName.tf 0 ;# Prevent the grid from resizing the frame from set size
     # NOTE: The above code will only work if the grids are given a sizes
@@ -83,6 +85,7 @@ proc createIngFrame { parent varName} {
     variable ingNameArr
     variable unitsArr
     variable amountArr
+
     set ING_FR_NM ingFr
 
     # Increment ing frame counter to the dictionary
@@ -135,8 +138,28 @@ proc deleteIng { ingFrName } {
     unset unitsArr($ingFrName)
 }
 
-deleteRec { recFrName } {
-    
+proc deleteRec { recFrName } {
+    variable recData
+    variable path_to_ings
+    variable ingNameArr
+    variable recNameArr
+
+    set ing_path $recFrName.$path_to_ings
+    # Delete each ingredient
+    for {set i 1} {$i <= [dict get $recData $recFrName num_ings]} {incr i} {
+        set ing_to_check $ing_path$i
+        if {[info exists ingNameArr($ing_to_check)] == 1} {
+            deleteIng $ing_to_check
+        }
+    }
+
+    # Delete the recipe
+    destroy $recFrName
+
+    # Delete recipe data
+    set recData [dict remove $recData $recFrName]
+    unset recNameArr($recFrName)
+
 }
 
 
