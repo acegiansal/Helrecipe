@@ -8,6 +8,9 @@ set METRIC_UNITS [list kg g mg L ml]
 set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
 set UNIT_LIST [list {*}$METRIC_UNITS {*}$IMPERIAL_UNITS units]
 
+# Constants for frame sizes
+set SIZE_5 250
+
 set num_reps 0
 
 # Will be a dictionary where each frame name has its own set of values to use
@@ -34,6 +37,7 @@ proc createRecFrame { parent } {
     variable recData
     variable recNameArr
     variable path_to_recs
+    variable SIZE_5
     # Initial setup for a recipe frame
     set num_reps [expr $num_reps + 1]
 
@@ -51,7 +55,7 @@ proc createRecFrame { parent } {
     button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName"
 
     ttk::separator $frameName.sep
-    frame $frameName.bf
+    frame $frameName.bf -pady 3 -padx 3 -background PaleGreen4 -width $SIZE_5 -height 30
 
     # Add all components to actual recipe frame
     grid $frameName.tf -sticky n
@@ -88,6 +92,7 @@ proc createIngFrame { parent varName} {
     # Set ing frame name
     if { $path_to_ings == ""} {
         # Get the last component of the parent then add the constant ING_FR_NM to it
+        # as of Oct 18, 2024, this should return bf
         set path_to_ings [lindex [split $parent .] end].$ING_FR_NM
     }
     set ingFrName $parent.$ING_FR_NM$curNumIngs
@@ -114,9 +119,20 @@ proc createIngFrame { parent varName} {
 
 }
 
-proc deleteIng { parent } {
-    puts [format "Deleting ing Frame: %s" $parent]
+proc deleteIng { ingFrName } {
+    variable ingNameArr
+    variable amountArr
+    variable unitsArr
+    puts [format "Deleting ing Frame: %s" $ingFrName]
     # Remeber to delete all information from the array!!
+
+    # Remove panel
+    destroy $ingFrName
+
+    # Delete all array information
+    unset ingNameArr($ingFrName)
+    unset amountArr($ingFrName)
+    unset unitsArr($ingFrName)
 }
 
 proc testProc { varName } {
@@ -130,16 +146,51 @@ proc testProc { varName } {
 proc sendToList {} {
 }
 
+proc _printAllInfo {} {
+    variable recData
+    variable recNameArr
+    variable ingNameArr
+    variable amountArr
+    variable unitsArr
+
+    puts "\n------- recData -------"
+    puts $recData
+
+    puts "------- recNameArr -------"
+    foreach  {key val} [array get recNameArr] {
+        puts [format "%s: %s" $key $val]
+    }
+
+    puts "------- ingNameArr -------"
+    foreach  {key val} [array get ingNameArr] {
+        puts [format "%s: %s" $key $val]
+    }
+
+    puts "------- amountArr -------"
+    foreach  {key val} [array get amountArr] {
+        puts [format "%s: %s" $key $val]
+    }
+
+    puts "------- unitsArr -------"
+    foreach  {key val} [array get unitsArr] {
+        puts [format "%s: %s" $key $val]
+    }
+
+}
 
 ########## Main ##########
 console show
 wm title . "Recipe Gui"
 
 # Default Grid
-grid [frame .rt -background green -padx 100 -pady 100]
+grid [frame .rt -background pink2 -padx 100 -pady 100]
 
 ## pack frames
 createRecFrame .rt; # Create a rec frame for testing purposes
+
+button .rt.debugButton -text "See data" -command "_printAllInfo"
+
+grid .rt.debugButton
 
 ## Start event loop
 vwait forever
