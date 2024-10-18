@@ -3,20 +3,25 @@ package require Tk
 
 #### Global Variables
 
+# Constants for units use
+set METRIC_UNITS [list kg g mg L ml]
+set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
+set UNIT_LIST [list {*}$METRIC_UNITS {*}$IMPERIAL_UNITS units]
+
 set num_reps 0
 
 # Will be a dictionary where each frame name has its own set of values to use
 # dictionary of arrays
 # Name of initial key is the frame name then the array key is the name of the variable type
 set recData [dict create]; # This line creates an empty dictionary
-set recNameArr(-1) Debug
 
+# Global arrays for data collection
+set recNameArr(-1) "RecNameDebug"
+set ingNameArr(-1) "IngNameDebug"
+set amountArr(-1) "AmountDebug"
+set unitsArr(-1) "UnitsDebug"
 
-set METRIC_UNITS [list kg g mg L ml]
-set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
-
-set UNIT_LIST [list {*}$METRIC_UNITS {*}$IMPERIAL_UNITS units]
-
+# These variables will be used for data collection since TCL/tk requires global variables
 set path_to_recs ""
 set path_to_ings ""
 
@@ -79,6 +84,7 @@ proc createIngFrame { parent varName} {
 
     # Set ing frame name
     if { $path_to_ings == ""} {
+        # Get the last component of the parent then add the constant ING_FR_NM to it
         set path_to_ings [lindex [split $parent .] end].$ING_FR_NM
     }
     set ingFrName $parent.$ING_FR_NM$curNumIngs
@@ -102,8 +108,6 @@ proc createIngFrame { parent varName} {
     grid $ingFrName.test -column 2 -row 0 -padx 5
     grid $ingFrName
 
-    puts RecData:
-    puts $recData
 }
 
 proc testProc { varName } {
