@@ -47,7 +47,7 @@ proc createRecFrame { parent } {
     frame $frameName -padx 10 -pady 10 -background RoyalBlue2
 
     frame $frameName.tf -borderwidth 10 -relief ridge -background blue
-    entry $frameName.tf.recName -background red -foreground white -width 20 -justify left -textvariable recNameArr($frameName)
+    entry $frameName.tf.recName -background NavajoWhite2 -width 20 -justify left -textvariable recNameArr($frameName)
     button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName"
 
     ttk::separator $frameName.sep
@@ -76,6 +76,9 @@ proc createIngFrame { parent varName} {
     variable recNameArr
     variable UNIT_LIST
     variable path_to_ings
+    variable ingNameArr
+    variable unitsArr
+    variable amountArr
     set ING_FR_NM ingFr
 
     # Increment ing frame counter to the dictionary
@@ -91,21 +94,19 @@ proc createIngFrame { parent varName} {
     puts [format "Creating ing frame --%d-- for %s with name %s" [dict get $recData $varName num_ings] $varName $ingFrName]
 
     frame $ingFrName -padx 1 -pady 1 -background burlywood2 -borderwidth 2 -relief ridge
-    spinbox $ingFrName.amount -from 0 -to 10000 -increment 1 -width 5
+    spinbox $ingFrName.amount -from 0 -to 10000 -increment 1 -width 5 -textvariable amountArr($ingFrName)
 
     # Create the menu
-    tk_optionMenu $ingFrName.units testVar {*}$UNIT_LIST
+    tk_optionMenu $ingFrName.units unitsArr($ingFrName) {*}$UNIT_LIST
     # tk_optionMenu $ingFrName.units [dict get $recData $varName] {*}$UNIT_LIST
 
-    # Test button
-    button $ingFrName.test -text "" -textvariable testVar
-    # button $ingFrName.test -text "" -textvariable [dict get $recData $varName]
+    entry $ingFrName.ingName -background azure -width 15 -justify left -textvariable ingNameArr($ingFrName)
 
     # puts [format "Varname: %s" [dict get $recData $varName]]
 
     grid $ingFrName.amount -sticky w
     grid $ingFrName.units -column 1 -row 0 -padx 5
-    grid $ingFrName.test -column 2 -row 0 -padx 5
+    grid $ingFrName.ingName -column 2 -row 0
     grid $ingFrName
 
 }
