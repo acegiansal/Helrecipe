@@ -6,7 +6,7 @@ package require Tk
 # Constants for units use
 set METRIC_WEIGHT [list kg g mg]
 set METRIC_LIQ [list L ml]
-set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
+set IMPERIAL_UNITS [list oz lb tbsp tsp cp]
 set UNIT_LIST [list {*}$METRIC_WEIGHT {*}$METRIC_LIQ {*}$IMPERIAL_UNITS units]
 
 # Constants for frame sizes
@@ -189,6 +189,10 @@ proc isWeight { s_unit } {
 }
 
 proc convertUnits { subject s_units {targ_units g} } {
+    # [list oz lb tbsp tsp in cp]
+
+    dict set to_default oz 0.0625 lb 1 tbsp 0 tsp 0 cp 0
+
 }
 
 
