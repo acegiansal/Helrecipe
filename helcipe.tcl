@@ -4,9 +4,10 @@ package require Tk
 #### Global Variables
 
 # Constants for units use
-set METRIC_UNITS [list kg g mg L ml]
+set METRIC_WEIGHT [list kg g mg]
+set METRIC_LIQ [list L ml]
 set IMPERIAL_UNITS [list oz lb tbsp tsp in cp]
-set UNIT_LIST [list {*}$METRIC_UNITS {*}$IMPERIAL_UNITS units]
+set UNIT_LIST [list {*}$METRIC_WEIGHT {*}$METRIC_LIQ {*}$IMPERIAL_UNITS units]
 
 # Constants for frame sizes
 set SIZE_5 250
@@ -41,6 +42,7 @@ proc createRecFrame { parent } {
     # Initial setup for a recipe frame
     set num_reps [expr $num_reps + 1]
 
+    # Create the path to recipes (for data collection later)
     if { $path_to_recs == "" } {
         set path_to_recs $parent.recFrame
     }
@@ -159,12 +161,34 @@ proc deleteRec { recFrName } {
     # Delete recipe data
     set recData [dict remove $recData $recFrName]
     unset recNameArr($recFrName)
-
 }
 
 
 #### File Handling (import and export)
-proc sendToList {} {
+proc sendToList { rec_path ing_path} {
+    variable recData
+    variable ingNameArr
+    variable amountArr
+    variable unitsArr
+    set export_data [dict create];
+
+}
+
+proc isWeight { s_unit } {
+    variable METRIC_LIQ
+    variable METRIC_WEIGHT
+    variable IMPERIAL_UNITS
+    # if its an imperial unit, it could be either (so assume weight)
+    if {[lsearch -exact $IMPERIAL_UNITS s_unit] >= 0 || [lsearch -exact $METRIC_WEIGHT s_unit]} {
+        return "WEIGHT"
+    } elseif {[lsearch -exact $METRIC_LIQ s_unit] >= 0} {
+        return "LIQ"
+    } else {
+        return "NOT_RECOGNIZED"
+    }
+}
+
+proc convertUnits { subject s_units {targ_units g} } {
 }
 
 
