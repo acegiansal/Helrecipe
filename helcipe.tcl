@@ -172,6 +172,8 @@ proc sendToList { rec_path ing_path} {
     variable unitsArr
     set export_data [dict create];
 
+    
+
 }
 
 proc isWeight { s_unit } {
@@ -188,6 +190,8 @@ proc isWeight { s_unit } {
     }
 }
 
+
+# TODO properly convert units
 proc convertUnits { subject s_units {targ_units g} } {
     # [list oz lb tbsp tsp in cp]
 
