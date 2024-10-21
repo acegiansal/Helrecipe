@@ -27,7 +27,7 @@ set unitsArr(-1) "UnitsDebug"
 
 # These variables will be used for data collection since TCL/tk requires global variables
 set path_to_recs ""
-set path_to_ings ""
+set ing_extension ""
 
 #### Frames
 
@@ -83,7 +83,7 @@ proc createIngFrame { parent varName} {
     variable recData
     variable recNameArr
     variable UNIT_LIST
-    variable path_to_ings
+    variable ing_extension
     variable ingNameArr
     variable unitsArr
     variable amountArr
@@ -95,10 +95,10 @@ proc createIngFrame { parent varName} {
     set curNumIngs [dict get $recData $varName num_ings]
 
     # Set ing frame name
-    if { $path_to_ings == ""} {
+    if { $ing_extension == ""} {
         # Get the last component of the parent then add the constant ING_FR_NM to it
-        # as of Oct 18, 2024, this should return bf
-        set path_to_ings [lindex [split $parent .] end].$ING_FR_NM
+        # as of Oct 18, 2024, this should return bf.ingFr
+        set ing_extension [lindex [split $parent .] end].$ING_FR_NM
     }
     set ingFrName $parent.$ING_FR_NM$curNumIngs
     puts [format "Creating ing frame --%d-- for %s with name %s" [dict get $recData $varName num_ings] $varName $ingFrName]
@@ -142,15 +142,15 @@ proc deleteIng { ingFrName } {
 
 proc deleteRec { recFrName } {
     variable recData
-    variable path_to_ings
+    variable ing_extension
     variable ingNameArr
     variable recNameArr
 
-    set ing_path $recFrName.$path_to_ings
+    set ing_ext $recFrName.$ing_extension
     # Delete each ingredient
     for {set i 1} {$i <= [dict get $recData $recFrName num_ings]} {incr i} {
-        set ing_to_check $ing_path$i
-        if {[info exists ingNameArr($ing_to_check)] == 1} {
+        set ing_to_check $ing_ext$i
+        if {[ingDoesExist $ing_to_check]} {
             deleteIng $ing_to_check
         }
     }
@@ -165,15 +165,63 @@ proc deleteRec { recFrName } {
 
 
 #### File Handling (import and export)
-proc sendToList { rec_path ing_path} {
+proc exportPrep {} {
+    variable path_to_recs
+    variable ing_extension
+    sendToList $path_to_recs $ing_extension
+}
+
+
+proc sendToList { rec_path ing_ext} {
     variable recData
+    variable num_reps
+    variable recNameArr
     variable ingNameArr
     variable amountArr
     variable unitsArr
     set export_data [dict create];
 
-    
+    if {$rec_path == "" || $ing_ext == ""} {
+        puts "no paths to variables!"
+        return
+    }
 
+    # Iterate through each possible recipe
+    for {set i 1} {$i<= $num_reps} {incr i} {
+        # Check if the recipe exists
+        set rec_id $rec_path$i
+        if {[info exists recNameArr($rec_id)] == 1} {
+            # Iterate through the ingredients
+            for {set ing 1} {$ing <= [dict get $recData $rec_id num_ings]} {incr ing} {
+                # Check if the ingredient exists
+                set ing_id $rec_id.$ing_ext$ing
+                if {[ingDoesExist $ing_id]} {
+                    # Parse information and add it to export_data
+                    puts [format "Found ing: %s" $ing_id]
+                }
+            }
+        }
+    }
+
+    # TODO Write data into a file
+}
+
+
+# This method is a helper method and should only be used if it is KNOWN that the variable exists
+proc parseData { data_path } {
+    variable ingNameArr
+    variable amountArr
+    variable unitsArr
+}
+
+
+#### Utility Functions
+
+# Checks if an ingredient exists
+# It's own function incase this conditional is desired to be changed
+proc ingDoesExist { ing_path } {
+    variable ingNameArr
+    return [expr [info exists ingNameArr($ing_path)] == 1]
 }
 
 proc isWeight { s_unit } {
@@ -207,8 +255,14 @@ proc _printAllInfo {} {
     variable ingNameArr
     variable amountArr
     variable unitsArr
+    variable path_to_recs
+    variable ing_extension
 
-    puts "\n------- recData -------"
+    puts "\n------- paths -------"
+    puts $path_to_recs
+    puts $ing_extension
+
+    puts "------- recData -------"
     puts $recData
 
     puts "------- recNameArr -------"
@@ -251,8 +305,10 @@ grid [frame .rt -background pink2 -padx 100 -pady 100]
 createRecFrame .rt; # Create a rec frame for testing purposes
 
 button .rt.debugButton -text "See data" -command "_printAllInfo"
+button .rt.exportButton -text "export" -command "exportPrep"
 
 grid .rt.debugButton
+grid .rt.exportButton
 
 ## Start event loop
 vwait forever
