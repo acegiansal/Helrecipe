@@ -9,6 +9,7 @@ set METRIC_LIQ [list L ml]
 set IMPERIAL_WEIGHT [list oz lb]
 set IMPERIAL_AMOUNT [list tbsp tsp cp]
 set UNIT_LIST [list {*}$METRIC_WEIGHT {*}$METRIC_LIQ {*}$IMPERIAL_WEIGHT {*}$IMPERIAL_AMOUNT units]
+set CONST_ERROR none
 
 # Constants for frame sizes
 set SIZE_5 250
@@ -53,6 +54,8 @@ proc createRecFrame { parent } {
 
     frame $frameName -padx 10 -pady 10 -background RoyalBlue2
 
+    label $frameName.recLabel -pady 5 -text "Recipe #$num_reps" -relief ridge -borderwidth 3 -background DeepSkyBlue3
+
     frame $frameName.tf -borderwidth 10 -relief ridge -background blue
     entry $frameName.tf.recName -background NavajoWhite2 -width 20 -justify left -textvariable recNameArr($frameName)
     button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName"
@@ -62,6 +65,7 @@ proc createRecFrame { parent } {
     frame $frameName.bf -pady 3 -padx 3 -background PaleGreen4 -width $SIZE_5 -height 30
 
     # Add all components to actual recipe frame
+    grid $frameName.recLabel
     grid $frameName.tf -sticky n
     grid $frameName.tf.recName -sticky w
     grid $frameName.tf.addIngButton -column 1 -row 0 -sticky e -padx 5
@@ -214,19 +218,29 @@ proc parseData { data_path export_data} {
     variable ingNameArr
     variable amountArr
     variable unitsArr
+    variable CONST_ERROR
+
+    # How to get from one unit to the default unit (g, ml, cp, lb)
+    set unit_convert [dict create g 1 kg 1000 mg 0.001 L 1000 ml 1 oz 0.0625 lb 1 tbsp 0.0625 tsp 0.0208 cp 1]
 
     # Gather ingredient information
     set ing_name $ingNameArr($data_path)
     set amount $amountArr($data_path)
     set unit $unitsArr($data_path)
-    
+
     # Check if amount is not a number
     if {[expr ![string is double -strict $amount]]} {
         return $export_data
     }
 
     # Convert to default units
-    # Default: g, ml, cp, oz
+    # Default: g, ml, cp, lb
+    set def_unit [getDefaultUnit $unit]
+    if {[expr ![expr {$def_unit} eq {$CONST_ERROR}]]} {
+        set amount [expr $amount * [dict get $unit_convert $unit]]
+        set unit $def_unit
+    }
+
 
     # Check name of ingredient already in dict
     if {[dict exists $export_data $ing_name $unit]} {
@@ -251,17 +265,27 @@ proc ingDoesExist { ing_path } {
     return [expr [info exists ingNameArr($ing_path)] == 1]
 }
 
-proc isWeight { s_unit } {
+proc getDefaultUnit { s_unit } {
     variable METRIC_LIQ
     variable METRIC_WEIGHT
-    variable IMPERIAL_UNITS
-    # if its an imperial unit, it could be either (so assume weight)
-    if {[lsearch -exact $IMPERIAL_UNITS s_unit] >= 0 || [lsearch -exact $METRIC_WEIGHT s_unit]} {
-        return "WEIGHT"
-    } elseif {[lsearch -exact $METRIC_LIQ s_unit] >= 0} {
-        return "LIQ"
+    variable IMPERIAL_WEIGHT
+    variable IMPERIAL_AMOUNT
+    variable CONST_ERROR
+    set DEFAULT_M_W g
+    set DEFAULT_M_L ml
+    set DEFAULT_I_W lb
+    set DEFAULT_I_L cp
+
+    if {[lsearch -exact $IMPERIAL_WEIGHT $s_unit] >= 0} {
+        return $DEFAULT_I_W
+    } elseif {[lsearch -exact $METRIC_WEIGHT $s_unit] >= 0} {
+        return $DEFAULT_M_W
+    } elseif {[lsearch -exact $METRIC_LIQ $s_unit] >= 0} {
+        return $DEFAULT_M_L
+    } elseif {[lsearch -exact $IMPERIAL_AMOUNT $s_unit] >= 0} {
+        return $DEFAULT_I_L
     } else {
-        return "NOT_RECOGNIZED"
+        return $CONST_ERROR
     }
 }
 

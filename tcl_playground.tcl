@@ -54,3 +54,5 @@ puts $testa
 #     puts no
 # }
 # puts $test(2)
+
+puts [expr 5 * 2]
