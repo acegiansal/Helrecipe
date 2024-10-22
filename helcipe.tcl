@@ -6,8 +6,9 @@ package require Tk
 # Constants for units use
 set METRIC_WEIGHT [list kg g mg]
 set METRIC_LIQ [list L ml]
-set IMPERIAL_UNITS [list oz lb tbsp tsp cp]
-set UNIT_LIST [list {*}$METRIC_WEIGHT {*}$METRIC_LIQ {*}$IMPERIAL_UNITS units]
+set IMPERIAL_WEIGHT [list oz lb]
+set IMPERIAL_AMOUNT [list tbsp tsp cp]
+set UNIT_LIST [list {*}$METRIC_WEIGHT {*}$METRIC_LIQ {*}$IMPERIAL_WEIGHT {*}$IMPERIAL_AMOUNT units]
 
 # Constants for frame sizes
 set SIZE_5 250
@@ -73,7 +74,7 @@ proc createRecFrame { parent } {
     grid $frameName.bf -sticky s
 
     # Add the actual recipe frame
-    grid $frameName
+    grid $frameName -pady 5
     puts "added actual frame with name: $frameName"
 }
 
@@ -198,6 +199,7 @@ proc sendToList { rec_path ing_ext} {
                 if {[ingDoesExist $ing_id]} {
                     # Parse information and add it to export_data
                     puts [format "Found ing: %s" $ing_id]
+                    set export_data [parseData $ing_id $export_data]
                 }
             }
         }
@@ -208,10 +210,35 @@ proc sendToList { rec_path ing_ext} {
 
 
 # This method is a helper method and should only be used if it is KNOWN that the variable exists
-proc parseData { data_path } {
+proc parseData { data_path export_data} {
     variable ingNameArr
     variable amountArr
     variable unitsArr
+
+    # Gather ingredient information
+    set ing_name $ingNameArr($data_path)
+    set amount $amountArr($data_path)
+    set unit $unitsArr($data_path)
+    
+    # Check if amount is not a number
+    if {[expr ![string is double -strict $amount]]} {
+        return $export_data
+    }
+
+    # Convert to default units
+    # Default: g, ml, cp, oz
+
+    # Check name of ingredient already in dict
+    if {[dict exists $export_data $ing_name $unit]} {
+        dict set export_data $ing_name $unit [expr [dict get $export_data $ing_name $unit] + $amount]
+    } else {
+        dict set export_data $ing_name $unit $amount
+    }
+
+    puts "\n===== ExportData ====="
+    puts $export_data
+
+    return $export_data
 }
 
 
@@ -303,11 +330,12 @@ grid [frame .rt -background pink2 -padx 100 -pady 100]
 
 ## pack frames
 createRecFrame .rt; # Create a rec frame for testing purposes
+createRecFrame .rt
 
 button .rt.debugButton -text "See data" -command "_printAllInfo"
 button .rt.exportButton -text "export" -command "exportPrep"
 
-grid .rt.debugButton
+grid .rt.debugButton -pady 2
 grid .rt.exportButton
 
 ## Start event loop
