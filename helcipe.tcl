@@ -173,11 +173,41 @@ proc deleteRec { recFrName } {
 proc exportPrep {} {
     variable path_to_recs
     variable ing_extension
-    sendToList $path_to_recs $ing_extension
+    return [collectExportData $path_to_recs $ing_extension]
 }
 
+proc exportToFile {} {
 
-proc sendToList { rec_path ing_ext} {
+    set export_data [exportPrep]
+
+    # Check if lists folder exists
+    set DIRNAME "./lists"
+    if {[file exist $DIRNAME]} {
+        # check that it's a directory
+        if {! [file isdirectory $DIRNAME]} {
+            puts "$DIRNAME exists, but it's a file, can not export data"
+            return
+        }
+    } else {
+        puts [format "%s does not exist, creating directory" $DIRNAME]
+        file mkdir $DIRNAME
+    }
+
+    set fp [open "./lists/shopping_list.txt" w+]
+
+    dict for {ing info} $export_data {
+        set ing_str "$ing: "
+        foreach {unit amount} $info {
+            set ing_str "$ing_str $amount $unit "
+        }
+        puts $fp [format "%s" $ing_str]
+    }
+
+    close $fp
+
+}
+
+proc collectExportData { rec_path ing_ext} {
     variable recData
     variable num_reps
     variable recNameArr
@@ -209,7 +239,7 @@ proc sendToList { rec_path ing_ext} {
         }
     }
 
-    # TODO Write data into a file
+    return $export_data
 }
 
 
@@ -357,7 +387,7 @@ createRecFrame .rt; # Create a rec frame for testing purposes
 createRecFrame .rt
 
 button .rt.debugButton -text "See data" -command "_printAllInfo"
-button .rt.exportButton -text "export" -command "exportPrep"
+button .rt.exportButton -text "export" -command "exportToFile"
 
 grid .rt.debugButton -pady 2
 grid .rt.exportButton
