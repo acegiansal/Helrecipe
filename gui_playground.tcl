@@ -40,7 +40,7 @@
 package require Tk
 ttk::notebook .n  -width 100 -height 100
 frame .n.f1;
-frame .n.f2;
+frame .n.f2 -background red
 .n add .n.f1 -text "TabOne"
 .n add .n.f2 -text "TabTwo"
 pack [label .n.f1.f2 -background red -foreground white -text "TabOne"]
