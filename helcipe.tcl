@@ -3,6 +3,19 @@ package require Tk
 
 #### Global Variables
 
+# Constants for Colours
+
+set BACKGROUND "#EDE8DC"
+set PRIMARY "#E7CCCC"
+set SECONDARY "#EDE6F2"
+set ADD_COLOUR "#A5B68D"
+set DELETE_COLOUR "#CC7178"
+# E7CCCC
+# EDE8DC
+# A5B68D
+# C1CFA1
+
+
 # Constants for units use
 set METRIC_WEIGHT [list kg g mg]
 set METRIC_LIQ [list L ml]
@@ -36,11 +49,19 @@ set ing_extension ""
 
 ### Create Recipe Frame
 proc createRecFrame { parent } {
+    # Constants
+    variable SIZE_5
+    variable PRIMARY
+    variable SECONDARY
+    variable ADD_COLOUR
+    variable DELETE_COLOUR
+
+    # Data Variables
     variable num_reps
     variable recData
     variable recNameArr
     variable path_to_recs
-    variable SIZE_5
+
     # Initial setup for a recipe frame
     set num_reps [expr $num_reps + 1]
 
@@ -52,30 +73,28 @@ proc createRecFrame { parent } {
     set frameName $path_to_recs$num_reps
     dict set recData "$frameName" num_ings 0
 
-    frame $frameName -padx 10 -pady 10 -background RoyalBlue2
+    frame $frameName -padx 10 -pady 10 -background $SECONDARY
 
-    label $frameName.recLabel -pady 5 -text "Recipe #$num_reps" -relief ridge -borderwidth 3 -background DeepSkyBlue3
+    frame $frameName.tf -borderwidth 1 -relief raised -background $SECONDARY
 
-    frame $frameName.tf -borderwidth 10 -relief ridge -background blue
-    entry $frameName.tf.recName -background NavajoWhite2 -width 20 -justify left -textvariable recNameArr($frameName)
-    button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName"
-    button $frameName.tf.deleteRecButton -text "Delete" -background red2 -command "deleteRec $frameName" -padx 10
+    # Prepare entry and add preexisting name
+    set recNameArr($frameName) "Recipe Name here"
+    entry $frameName.tf.recName -width 20 -justify left -textvariable recNameArr($frameName)
 
-    ttk::separator $frameName.sep
-    frame $frameName.bf -pady 3 -padx 3 -background PaleGreen4 -width $SIZE_5 -height 30
+    button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName" -background $ADD_COLOUR
+    button $frameName.tf.deleteRecButton -text "Delete" -background $DELETE_COLOUR -command "deleteRec $frameName"
+
+    frame $frameName.bf -pady 3 -padx 3 -background $SECONDARY -width $SIZE_5 -height 30
 
     # Add all components to actual recipe frame
-    grid $frameName.recLabel
     grid $frameName.tf -sticky n
-    grid $frameName.tf.recName -sticky w
+    grid $frameName.tf.recName -sticky w -padx 5
     grid $frameName.tf.addIngButton -column 1 -row 0 -sticky e -padx 5
-    grid $frameName.tf.deleteRecButton -column 2 -row 0 -padx 2
+    grid $frameName.tf.deleteRecButton -column 2 -row 0 -padx 2 -pady 5
 
     # grid propagate $frameName.tf 0 ;# Prevent the grid from resizing the frame from set size
     # NOTE: The above code will only work if the grids are given a sizes
-
-    grid $frameName.sep -sticky ew -pady 20
-    grid $frameName.bf -sticky s
+    grid $frameName.bf -sticky s -pady 5
 
     # Add the actual recipe frame
     grid $frameName -pady 5
@@ -125,7 +144,7 @@ proc createIngFrame { parent varName} {
     grid $ingFrName.units -column 1 -row 0 -padx 5
     grid $ingFrName.ingName -column 2 -row 0
     grid $ingFrName.delIng -column 3 -row 0 -padx 3
-    grid $ingFrName
+    grid $ingFrName -pady 2
 
 }
 
