@@ -103,6 +103,9 @@ proc createRecFrame { parent } {
 
 ## Create Ing Frame
 proc createIngFrame { parent varName} {
+    # Constants
+    variable DELETE_COLOUR
+
     # Variables declared globally (because TCL sucks)
     variable recData
     variable recNameArr
@@ -127,7 +130,7 @@ proc createIngFrame { parent varName} {
     set ingFrName $parent.$ING_FR_NM$curNumIngs
     puts [format "Creating ing frame --%d-- for %s with name %s" [dict get $recData $varName num_ings] $varName $ingFrName]
 
-    frame $ingFrName -padx 1 -pady 1 -background burlywood2 -borderwidth 2 -relief ridge
+    frame $ingFrName -padx 1 -pady 1 -background burlywood2 -borderwidth 2 -relief groove
     spinbox $ingFrName.amount -from 0 -to 10000 -increment 1 -width 5 -textvariable amountArr($ingFrName)
 
     # Create the menu
@@ -136,7 +139,7 @@ proc createIngFrame { parent varName} {
 
     entry $ingFrName.ingName -background azure -width 15 -justify left -textvariable ingNameArr($ingFrName)
 
-    button $ingFrName.delIng -width 5 -text Delete -command "deleteIng $ingFrName"
+    button $ingFrName.delIng -width 5 -text Delete -command "deleteIng $ingFrName" -background $DELETE_COLOUR
 
     # puts [format "Varname: %s" [dict get $recData $varName]]
 
@@ -399,7 +402,7 @@ console show
 wm title . "Recipe Gui"
 
 # Default Grid
-grid [frame .rt -background pink2 -padx 100 -pady 100]
+grid [frame .rt -background $BACKGROUND -padx 100 -pady 100]
 
 ## pack frames
 createRecFrame .rt; # Create a rec frame for testing purposes
