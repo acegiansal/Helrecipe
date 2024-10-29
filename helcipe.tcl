@@ -8,7 +8,10 @@ package require Tk
 set BACKGROUND "#EDE8DC"
 set PRIMARY "#E7CCCC"
 set SECONDARY "#EDE6F2"
+set TERTIARY "#153B50"
+set QUAD "#412234"
 set ADD_COLOUR "#A5B68D"
+set ADD_COLOUR2 "#C1CFA1"
 set DELETE_COLOUR "#CC7178"
 # E7CCCC
 # EDE8DC
@@ -39,12 +42,58 @@ set recNameArr(-1) "RecNameDebug"
 set ingNameArr(-1) "IngNameDebug"
 set amountArr(-1) "AmountDebug"
 set unitsArr(-1) "UnitsDebug"
+set previewData ""
 
 # These variables will be used for data collection since TCL/tk requires global variables
 set path_to_recs ""
 set ing_extension ""
 
 #### Frames
+
+proc createPages { parent } {
+    # Colour Constants
+    variable PRIMARY
+    variable SECONDARY
+    variable ADD_COLOUR
+    variable BACKGROUND
+    variable TERTIARY
+    variable QUAD
+    # Data Variables
+    variable previewData
+
+    font create headerFont -family "Times New Roman" -weight bold -size 18
+    font create subFont -family "Times New Roman" -size 12 -weight bold
+
+    label $parent.header -text "Gian's Recipe Helper" -font headerFont -background $BACKGROUND -justify left
+
+    set mainFrame $parent.mainFr
+    frame $mainFrame -background $PRIMARY -relief groove -borderwidth 2
+    
+    button $mainFrame.addRecBt -background $ADD_COLOUR -text "Add Recipe" -command "createRecFrame $mainFrame.recHolder"
+
+    frame $mainFrame.recHolder -background $PRIMARY -pady 5 -padx 5 -width 10 -height 10
+    
+    set prevFr $parent.prevFr
+    # TODO: Change the background of most components to BACKGROUND
+    frame $prevFr -background $QUAD
+    label $prevFr.subtitle -background $QUAD -font subFont -justify left -text "Shopping List Preview" -pady 5
+    button $prevFr.updatePrev -background $SECONDARY -text "Update"
+    message $prevFr.prevInfo -background $PRIMARY -textvariable previewData -relief ridge -borderwidth 2
+    button $prevFr.exportBt -background $TERTIARY -text "Export" -foreground white
+
+    # grid [label $prevFr.test -text "THIS IS A TEST" -background $SECONDARY] ; # Debug label
+
+    grid $parent.header -sticky w -row 0 -column 0 -pady 10
+    grid $mainFrame -sticky nsew -row 1 -column 0 -rowspan 3 -columnspan 3 -padx 5 -pady 5
+    grid $mainFrame.addRecBt -padx 5 -pady 5 -sticky nw
+    grid $mainFrame.recHolder -sticky nsew -row 1 -pady 5 -padx 5 -columnspan 5
+
+    grid $prevFr -row 1 -column 3 -padx 5 -pady 5 -sticky nsew -rowspan 3
+    grid $prevFr.subtitle -row 0 -column 0
+    grid $prevFr.updatePrev -row 0 -column 1 -padx 5
+    grid $prevFr.prevInfo -sticky nsew -row 1 -column 0 -rowspan 3 -columnspan 2
+    grid $prevFr.exportBt -sticky ws -row 4 -column 0 -pady 5
+}
 
 
 ### Create Recipe Frame
@@ -53,7 +102,7 @@ proc createRecFrame { parent } {
     variable SIZE_5
     variable PRIMARY
     variable SECONDARY
-    variable ADD_COLOUR
+    variable ADD_COLOUR2
     variable DELETE_COLOUR
 
     # Data Variables
@@ -81,7 +130,7 @@ proc createRecFrame { parent } {
     set recNameArr($frameName) "Recipe Name here"
     entry $frameName.tf.recName -width 20 -justify left -textvariable recNameArr($frameName)
 
-    button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName" -background $ADD_COLOUR
+    button $frameName.tf.addIngButton -text "add ingredient" -command "createIngFrame $frameName.bf $frameName" -background $ADD_COLOUR2
     button $frameName.tf.deleteRecButton -text "Delete" -background $DELETE_COLOUR -command "deleteRec $frameName"
 
     frame $frameName.bf -pady 3 -padx 3 -background $SECONDARY -width $SIZE_5 -height 30
@@ -402,11 +451,13 @@ console show
 wm title . "Recipe Gui"
 
 # Default Grid
-grid [frame .rt -background $BACKGROUND -padx 100 -pady 100]
+grid [frame .rt -background $BACKGROUND -padx 50 -pady 50]
 
 ## pack frames
-createRecFrame .rt; # Create a rec frame for testing purposes
-createRecFrame .rt
+# createRecFrame .rt; # Create a rec frame for testing purposes
+# createRecFrame .rt
+
+createPages .rt
 
 button .rt.debugButton -text "See data" -command "_printAllInfo"
 button .rt.exportButton -text "export" -command "exportToFile"
