@@ -77,9 +77,9 @@ proc createPages { parent } {
     # TODO: Change the background of most components to BACKGROUND
     frame $prevFr -background $QUAD
     label $prevFr.subtitle -background $QUAD -font subFont -justify left -text "Shopping List Preview" -pady 5
-    button $prevFr.updatePrev -background $SECONDARY -text "Update"
-    message $prevFr.prevInfo -background $PRIMARY -textvariable previewData -relief ridge -borderwidth 2
-    button $prevFr.exportBt -background $TERTIARY -text "Export" -foreground white
+    button $prevFr.updatePrev -background $SECONDARY -text "Update" -command "previewExport"
+    message $prevFr.prevInfo -background $PRIMARY -textvariable previewData -relief ridge -borderwidth 2 -justify left -aspect 300 -anchor w
+    button $prevFr.exportBt -background $TERTIARY -text "Export" -foreground white -command "exportToFile"
 
     # grid [label $prevFr.test -text "THIS IS A TEST" -background $SECONDARY] ; # Debug label
 
@@ -247,9 +247,24 @@ proc exportPrep {} {
     return [collectExportData $path_to_recs $ing_extension]
 }
 
-proc exportToFile {} {
-
+proc previewExport {} {
+    variable previewData
+    set temp ""
     set export_data [exportPrep]
+    dict for {ing info} $export_data {
+        set ing_str "$ing: "
+        foreach {unit amount} $info {
+            set ing_str "$ing_str $amount $unit "
+        }
+        set temp [format "%s%s\n" $temp $ing_str]
+    }
+    set previewData $temp
+}
+
+proc exportToFile {} {
+    variable previewData
+
+    # set export_data [exportPrep]
 
     # Check if lists folder exists
     set DIRNAME "./lists"
@@ -266,13 +281,15 @@ proc exportToFile {} {
 
     set fp [open "./lists/shopping_list.txt" w+]
 
-    dict for {ing info} $export_data {
-        set ing_str "$ing: "
-        foreach {unit amount} $info {
-            set ing_str "$ing_str $amount $unit "
-        }
-        puts $fp [format "%s" $ing_str]
-    }
+    # dict for {ing info} $export_data {
+    #     set ing_str "$ing: "
+    #     foreach {unit amount} $info {
+    #         set ing_str "$ing_str $amount $unit "
+    #     }
+    #     puts $fp [format "%s" $ing_str]
+    # }
+
+    puts $fp $previewData
 
     close $fp
 
