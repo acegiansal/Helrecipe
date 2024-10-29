@@ -75,8 +75,8 @@ proc createPages { parent } {
     
     set prevFr $parent.prevFr
     # TODO: Change the background of most components to BACKGROUND
-    frame $prevFr -background $QUAD
-    label $prevFr.subtitle -background $QUAD -font subFont -justify left -text "Shopping List Preview" -pady 5
+    frame $prevFr -background $BACKGROUND
+    label $prevFr.subtitle -background $BACKGROUND -font subFont -justify left -text "Shopping List Preview" -pady 5
     button $prevFr.updatePrev -background $SECONDARY -text "Update" -command "previewExport"
     message $prevFr.prevInfo -background $PRIMARY -textvariable previewData -relief ridge -borderwidth 2 -justify left -aspect 300 -anchor w
     button $prevFr.exportBt -background $TERTIARY -text "Export" -foreground white -command "exportToFile"
@@ -122,7 +122,7 @@ proc createRecFrame { parent } {
     set frameName $path_to_recs$num_reps
     dict set recData "$frameName" num_ings 0
 
-    frame $frameName -padx 10 -pady 10 -background $SECONDARY
+    frame $frameName -padx 10 -pady 10 -background $SECONDARY -relief sunken -borderwidth 2
 
     frame $frameName.tf -borderwidth 1 -relief raised -background $SECONDARY
 
@@ -196,7 +196,7 @@ proc createIngFrame { parent varName} {
     grid $ingFrName.units -column 1 -row 0 -padx 5
     grid $ingFrName.ingName -column 2 -row 0
     grid $ingFrName.delIng -column 3 -row 0 -padx 3
-    grid $ingFrName -pady 2
+    grid $ingFrName -pady 2 -sticky w
 
 }
 
@@ -476,11 +476,9 @@ grid [frame .rt -background $BACKGROUND -padx 50 -pady 50]
 
 createPages .rt
 
-button .rt.debugButton -text "See data" -command "_printAllInfo"
-button .rt.exportButton -text "export" -command "exportToFile"
+button .rt.debugButton -text "DEBUG see data" -command "_printAllInfo"
 
 grid .rt.debugButton -pady 2
-grid .rt.exportButton
 
 ## Start event loop
 vwait forever
